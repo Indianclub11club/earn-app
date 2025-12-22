@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Earn App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{--p:#7b4ddb;--o:#ff8a00;--bg:#f3f3f3}
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:var(--bg);padding-bottom:92px}
+.app{max-width:420px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:22px}
+h3{text-align:center;margin:8px 0}
+.balance{font-size:34px;font-weight:bold;text-align:center}
+.btn{width:100%;padding:16px;border:none;border-radius:18px;font-size:17px;font-weight:bold}
+.purple{background:var(--p);color:#fff}
+.orange{background:var(--o);color:#fff}
+.small{text-align:center;font-size:13px;color:#777;margin-top:8px}
+.section{display:none}.section.active{display:block}
+
+/* loader */
+.btn:disabled{background:#999!important}
+.loader{width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top:3px solid #fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* withdraw */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.opt{background:#eee;border-radius:16px;padding:14px;text-align:center}
+.opt.active{border:2px solid var(--o);background:#fff7ec}
+input{width:100%;padding:14px;border-radius:12px;border:1px solid #ccc;margin-top:12px}
+.pending{background:#fff3cd;padding:14px;border-radius:14px;text-align:center;margin-bottom:20px}
+.success{background:#d4edda;padding:14px;border-radius:14px;text-align:center;margin-bottom:20px}
+
+/* invite */
+.invite-card{background:#fff;border-radius:18px;padding:16px;margin-bottom:26px}
+.inv-link{background:#f6f6f6;padding:12px;border-radius:12px;font-size:13px;word-break:break-all;margin-bottom:18px}
+.inv-btns{display:flex;gap:18px}
+.inv-btns button{flex:1;padding:14px;border:none;border-radius:16px;color:#fff;font-weight:bold}
+.copy{background:#7b4ddb}.share{background:#ff8a00}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.sum{background:#fff;border-radius:18px;padding:18px 10px;text-align:center}
+.sum h2{margin:0;font-size:22px}.sum p{margin-top:6px;font-size:13px;color:#666}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 6px;border-bottom:1px solid #eee;text-align:center}
+
+/* nav */
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:12px 0;border-top:1px solid #ddd}
+.nav div{font-size:12px;color:#777}
+.nav .active{color:var(--o);font-weight:bold}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- HOME -->
+<div id="home" class="section active">
+  <div class="card">
+    <h3>Wallet Balance</h3>
+    <div class="balance">₹ <span id="bal">0</span></div>
+    <button id="watchBtn" class="btn purple">▶ Watch & Earn ₹1</button>
+    <p class="small">Ad देखने के बाद ही reward मिलेगा</p>
+    <p class="small">Daily limit ₹100</p>
+  </div>
+</div>
+
+<!-- WITHDRAW -->
+<div id="withdraw" class="section">
+  <div class="card">
+    <h3>Withdraw</h3>
+    <div class="balance">₹ <span id="wbal">0</span></div>
+    <p class="small">Daily withdraw left: <span id="wd">3</span></p>
+  </div>
+  <div id="statusBox"></div>
+  <div class="card">
+    <div class="options">
+      <div class="opt" onclick="sel(event,220,200)">220₹ → 200₹</div>
+      <div class="opt" onclick="sel(event,315,300)">315₹ → 300₹</div>
+      <div class="opt" onclick="sel(event,525,500)">525₹ → 500₹</div>
+    </div>
+  </div>
+  <div class="card">
+    <input id="bank" placeholder="Account Number">
+    <input id="ifsc" placeholder="IFSC Code">
+    <input id="name" placeholder="Account Holder Name">
+  </div>
+  <button class="btn orange" onclick="withdrawNow()">Withdraw</button>
+</div>
+
+<!-- INVITE -->
+<div id="invite" class="section">
+  <div class="invite-card">
+    <div class="inv-link" id="invLink"></div>
+    <div class="inv-btns">
+      <button class="copy" onclick="copyLink()">Copy</button>
+      <button class="share" onclick="shareLink()">Share</button>
+    </div>
+  </div>
+  <div class="summary">
+    <div class="sum"><h2 id="inv">0</h2><p>Invitees</p></div>
+    <div class="sum"><h2>₹<span id="mon">0</span></h2><p>Monthly</p></div>
+    <div class="sum"><h2>₹<span id="tot">0</span></h2><p>Total</p></div>
+  </div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Date</th><th>Inv</th><th>Com</th><th>₹</th></tr></thead>
+      <tbody id="log"></tbody>
+    </table>
+  </div>
+  <button class="btn purple" onclick="simulateInvite()">Simulate Invite</button>
+</div>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="active" onclick="show('home',this)">🏠 Home</div>
+  <div onclick="show('withdraw',this)">💸 Withdraw</div>
+  <div onclick="show('invite',this)">👥 Invite</div>
+</div>
+
+<script>
+/* ========= CONFIG ========= */
+const SMART_LINK = "https://example.com"; // 🔗 अपना smart link यहाँ डालें
+const AD_TIME = 30; // seconds
+const DAILY_LIMIT = 100;
+
+/* ========= STATE ========= */
+let balance = +localStorage.balance || 0;
+let wd = +localStorage.wd || 3;
+let daily = 0;
+let running = false;
+let dAmt=0,rAmt=0;
+
+/* invite */
+let code = localStorage.code || ("INV"+Math.floor(100000+Math.random()*900000));
+localStorage.code = code;
+let invData = JSON.parse(localStorage.inv || '{"c":0,"t":0,"l":[]}');
+
+/* ========= INIT ========= */
+function init(){
+  bal.textContent = wbal.textContent = balance;
+  wdEl.textContent = wd;
+  invLink.textContent = "https://example.com/?ref="+code;
+  renderInv(); checkPending();
+}
+const wdEl = document.getElementById("wd");
+
+/* ========= WATCH & EARN ========= */
+const watchBtn = document.getElementById("watchBtn");
+watchBtn.addEventListener("click", ()=>{
+  if(running) return;
+  if(daily>=DAILY_LIMIT) return alert("Daily earning limit reached");
+
+  running = true;
+  let t = AD_TIME;
+  watchBtn.disabled = true;
+  watchBtn.innerHTML = `<span class="loader"></span> Please wait ${t}s`;
+  window.open(SMART_LINK, "_blank");
+
+  const iv = setInterval(()=>{
+    t--;
+    watchBtn.innerHTML = `<span class="loader"></span> Please wait ${t}s`;
+    if(t<=0){
+      clearInterval(iv);
+      balance += 1; daily += 1;
+      save();
+      watchBtn.disabled = false;
+      watchBtn.innerHTML = "▶ Watch & Earn ₹1";
+      running = false;
+    }
+  },1000);
+});
+
+/* ========= WITHDRAW ========= */
+function sel(e,d,r){
+  dAmt=d; rAmt=r;
+  document.querySelectorAll(".opt").forEach(o=>o.classList.remove("active"));
+  e.target.classList.add("active");
+}
+function withdrawNow(){
+  if(localStorage.pending) return alert("Already pending");
+  if(!dAmt || balance<dAmt) return alert("Select valid amount");
+  if(wd<=0) return alert("Daily withdraw limit reached");
+  if(!bank.value||!ifsc.value||!name.value) return alert("Fill all details");
+  if(!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc.value)) return alert("Invalid IFSC");
+
+  balance -= dAmt; wd--;
+  localStorage.pending = JSON.stringify({amt:rAmt,time:Date.now()+86400000});
+  save(); checkPending();
+}
+function checkPending(){
+  let p = localStorage.pending;
+  if(!p){ statusBox.innerHTML=""; return; }
+  p = JSON.parse(p);
+  if(Date.now()<p.time){
+    statusBox.innerHTML = `<div class="pending">⏳ Withdrawal Pending (24 hours)</div>`;
+  }else{
+    statusBox.innerHTML = `<div class="success">✅ Withdrawal Success ₹${p.amt}</div>`;
+    localStorage.removeItem("pending");
+  }
+}
+
+/* ========= INVITE ========= */
+function simulateInvite(){
+  let d=new Date();
+  invData.c++; invData.t+=5;
+  invData.l.unshift({d:d.toDateString(),r:5});
+  localStorage.inv = JSON.stringify(invData);
+  balance+=5; save(); renderInv();
+}
+function renderInv(){
+  inv.textContent = invData.c;
+  tot.textContent = invData.t;
+  let m=0,h="";
+  invData.l.forEach(x=>{ m+=x.r; h+=`<tr><td>${x.d}</td><td>1</td><td>0</td><td>${x.r}</td></tr>`; });
+  mon.textContent = m; log.innerHTML = h;
+}
+function copyLink(){ navigator.clipboard.writeText(invLink.textContent); }
+function shareLink(){ navigator.share ? navigator.share({url:invLink.textContent}) : copyLink(); }
+
+/* ========= UTIL ========= */
+function save(){
+  localStorage.balance = balance;
+  localStorage.wd = wd;
+  bal.textContent = wbal.textContent = balance;
+  wdEl.textContent = wd;
+}
+function show(id,el){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav div").forEach(n=>n.classList.remove("active"));
+  el.classList.add("active");
+}
+window.onload = init;
+</script>
+</body>
+  </html>
