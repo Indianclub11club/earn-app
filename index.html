@@ -1,116 +1,358 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Earn App</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Free Followers Rewards</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #833AB4; --secondary: #FD1D1D; --accent: #FCAF45; --bg: #f4f4f4; --text: #333; --white: #fff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 70px; margin: 0; overflow-x: hidden; }
+        .hidden { display: none !important; }
+        
+        .btn { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        
+        .card { background: var(--white); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        /* LIVE ORDER & OFFICIAL CARD CSS */
+        .live-order-card {
+            background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; align-items: center;
+            justify-content: space-between; border: 1px solid #f0f0f0; transition: all 0.5s ease;
+            position: relative; overflow: hidden;
+        }
+        .live-order-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+        .card-insta::before { background: #833AB4; }
+        .card-youtube::before { background: #FF0000; }
+        .card-official::before { background: #0088cc; } 
 
-<style>
-body{margin:0;font-family:Arial;background:#f3f3f3;padding-bottom:90px}
-.app{max-width:420px;margin:auto;padding:15px}
-.card{background:#fff;border-radius:16px;padding:15px;margin-bottom:18px}
-h3{text-align:center}
-.balance{font-size:32px;font-weight:bold;text-align:center}
-.btn{width:100%;padding:14px;border:none;border-radius:14px;font-size:16px;font-weight:bold}
-.purple{background:#7b4ddb;color:#fff}
-.orange{background:#ff8a00;color:#fff}
-.small{text-align:center;font-size:12px;color:#777}
-input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;margin-top:10px}
+        .order-left { display: flex; align-items: center; gap: 12px; }
+        .order-right { text-align: right; }
+        .platform-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .icon-insta { background: #f0ebf4; color: #833AB4; }
+        .icon-youtube { background: #fff0f0; color: #FF0000; }
+        .icon-official { background: #e0f7fa; color: #0088cc; }
 
-.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;border-top:1px solid #ddd;padding:10px 0}
-.nav div{font-size:12px;color:#777}
-.nav .active{color:#ff8a00;font-weight:bold}
+        .order-info h4 { margin: 0; font-size: 0.95rem; color: #333; font-weight: 700; }
+        .order-info small { color: #27ae60; font-weight: 600; font-size: 0.7rem; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+        .points-badge { background: #fff8e1; color: #f39c12; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; border: 1px solid #ffe0b2; margin-bottom: 5px; display: inline-block; }
 
-.section{display:none}
-.section.active{display:block}
+        .action-btn-small { background: #333; color: white; border: none; padding: 6px 15px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; }
+        .action-btn-small:disabled { background: #ccc; cursor: not-allowed; opacity: 0.7; }
 
-.loader{
- width:18px;height:18px;border:3px solid rgba(255,255,255,.5);
- border-top:3px solid #fff;border-radius:50%;
- animation:spin 1s linear infinite;display:inline-block;margin-right:8px
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+        /* BONUS & OTHERS */
+        .bonus-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .bonus-card { flex: 1; text-align: center; padding: 15px 5px; color: white; border-radius: 12px; position: relative; }
+        .daily-card { background: linear-gradient(135deg, #FFD700, #FFA500); border: 1px solid #e6b800; }
+        .lucky-card { background: linear-gradient(135deg, #8E2DE2, #4A00E0); border: 1px solid #7209b7; }
+        .bonus-btn { background: white; color: #333; width: auto; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: 8px; border: none; font-weight: bold; cursor: pointer; }
+
+        .header { background: var(--white); padding: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .stats-row { display: flex; justify-content: space-between; margin-top: 10px; }
+        .stat-box { text-align: center; width: 48%; background: #f9f9f9; padding: 10px; border-radius: 10px; border: 1px solid #eee; }
+        .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .screen { padding: 20px; min-height: 100vh; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 50; }
+        .nav-item { text-align: center; color: #888; font-size: 0.8rem; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(5px); }
+        .modal-content { background: white; width: 85%; max-width: 350px; border-radius: 15px; padding: 0; text-align: center; animation: popUp 0.4s ease-out; overflow: hidden; }
+        .modal-header { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 20px; color: white; }
+        .modal-body { padding: 20px; }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* Ensuring Splash is on top */
+        #splash-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; transition: opacity 0.5s ease; }
+        .auth-toggle { margin-top: 15px; font-size: 0.9rem; color: #555; cursor: pointer; text-decoration: underline; }
+        
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 3000; left: 50%; bottom: 80px; transform: translateX(-50%); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 80px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 80px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
 </head>
-
 <body>
 
-<div class="app">
+    <div id="splash-screen"><h1>🚀 InstaRewards</h1><p>Starting App...</p></div>
 
-<!-- REGISTER -->
-<div id="register" class="section active">
-  <div class="card">
-    <h3>Register</h3>
-    <input id="username" placeholder="Enter your name">
-    <button class="btn purple" onclick="register()">Continue</button>
-  </div>
-</div>
+    <script>
+        (function() {
+            setTimeout(function() {
+                var splash = document.getElementById('splash-screen');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(function() { splash.style.display = 'none'; }, 500);
+                }
+            }, 3000);
+        })();
+    </script>
 
-<!-- HOME -->
-<div id="home" class="section">
-  <div class="card">
-    <h3>Wallet Balance</h3>
-    <div class="balance">₹ <span id="bal">0</span></div>
-    <button id="watchBtn" class="btn purple">▶ Watch & Earn</button>
-    <p class="small">Min ₹1.5 per ad</p>
-  </div>
-</div>
+    <div id="welcome-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-rocket" style="font-size:3rem; margin-bottom:10px;"></i>
+                <h2 style="margin:0;">Grow Fast!</h2>
+            </div>
+            <div class="modal-body">
+                <h3 style="margin:0 0 10px 0;">Welcome Back!</h3>
+                <p style="color:#666; font-size:0.9rem; margin-bottom:20px;">Complete tasks, spin the Lucky Bonus, and get real followers instantly.</p>
+                <button class="btn" onclick="closeModal()">Start Earning 🚀</button>
+            </div>
+        </div>
+    </div>
 
-<!-- INVITE -->
-<div id="invite" class="section">
-  <div class="card">
-    <h3>Invite & Earn</h3>
-    <input id="inviteLink" readonly>
-    <button class="btn orange" onclick="copyInvite()">Copy Invite Link</button>
-    <p class="small">Reward after 30 minutes</p>
-  </div>
-</div>
+    <div id="auth-screen" class="screen hidden">
+        <div class="card" style="text-align: center; margin-top: 30px;">
+            <h2 id="auth-title">Login 👋</h2>
+            <input type="text" id="inp-insta" placeholder="Instagram ID (Username)">
+            <input type="password" id="inp-password" placeholder="Password">
+            <div id="signup-fields" class="hidden">
+                <input type="text" id="inp-name" placeholder="Full Name">
+                <input type="tel" id="inp-mobile" placeholder="Mobile Number">
+            </div>
+            <button class="btn" onclick="handleAuth()" id="btn-auth">Login</button>
+            <p class="auth-toggle" onclick="toggleAuthMode()">
+                <span id="toggle-text">Don't have an account? Create New</span>
+            </p>
+        </div>
+    </div>
 
-<!-- WITHDRAW -->
-<div id="withdraw" class="section">
-  <div class="card">
-    <h3>Withdraw</h3>
-    <input id="amount" placeholder="Amount">
-    <input id="account" placeholder="Account / UPI">
-    <button class="btn orange" onclick="withdraw()">Request Withdraw</button>
-  </div>
-</div>
+    <div id="app-container" class="hidden">
+        <div class="header">
+            <h3 id="user-welcome">Hello</h3>
+            <div class="stats-row">
+                <div class="stat-box"><div class="stat-val" id="disp-points">0</div><div>Points</div></div>
+                <div class="stat-box"><div class="stat-val" id="disp-coins">0</div><div>Coins</div></div>
+            </div>
+            <button class="btn" style="background: #333; font-size: 0.9rem;" onclick="convertPoints()">🔄 Convert 10 Pts = 1 Coin</button>
+        </div>
 
-</div>
+        <div id="tab-home" class="screen" style="padding-top: 0;">
+            
+            <div class="bonus-row">
+                <div class="bonus-card daily-card">
+                    <h4><i class="fas fa-calendar-check"></i> Daily</h4>
+                    <p style="font-size:0.75rem;">+2 Coins</p>
+                    <button id="btn-daily-bonus" class="bonus-btn" onclick="claimDailyBonus()">Claim</button>
+                </div>
+                <div class="bonus-card lucky-card">
+                    <h4><i class="fas fa-dice"></i> Lucky</h4>
+                    <p style="font-size:0.75rem;">Win 5-50 Pts</p>
+                    <button id="btn-lucky-bonus" class="bonus-btn" onclick="claimLuckyBonus()">Spin</button>
+                </div>
+            </div>
 
-<div class="nav">
-  <div onclick="show('home',this)" class="active">🏠 Home</div>
-  <div onclick="show('invite',this)">👥 Invite</div>
-  <div onclick="show('withdraw',this)">💸 Withdraw</div>
-</div>
+            <h3>🎯 Official Tasks</h3>
+            <div class="card">
+                 <div id="official-tasks-container">
+                    <p style="text-align:center;color:#999; padding:5px;">Loading tasks...</p>
+                 </div>
+            </div>
 
-<script>
-/* ===== CONFIG ===== */
-const SMART_LINKS = [
- "https://www.effectivegatecpm.com/b7hmg6des?key=884a2022eb4d830f64a055c008081d0b",
- "https://www.effectivegatecpm.com/b7hmg6des?key=884a2022eb4d830f64a055c008081d0b"
-];
-const BOT_TOKEN = "8267075604:AAGRZN_erJNQnn_jYX38L1LgD1q3uJknP7M";
-const CHAT_ID = "8267075604";
+            <h3>🔥 Live User Orders <span style="background:red; color:white; padding:2px 5px; border-radius:4px; font-size:0.7rem;">LIVE</span></h3>
+            <div id="dynamic-tasks-container">
+                <p style="text-align:center; color:#999; padding: 10px;">Loading live orders...</p>
+            </div>
+        </div>
 
-/* ===== STATE ===== */
-let balance = +localStorage.balance || 0;
-let name = localStorage.name || "";
-let linkIndex = 0;
+        <div id="tab-order" class="screen hidden" style="padding-top: 0;">
+            <div class="card">
+                <h3>👥 Place Order</h3>
+                <select id="order-platform" onchange="updateOrderPlaceholder()">
+                    <option value="insta">📸 Instagram Followers</option>
+                    <option value="youtube">▶ YouTube Subscribers</option>
+                </select>
+                <input type="text" id="order-link" placeholder="Paste Instagram Profile Link...">
+                
+                <select id="order-select">
+                    <option value="10|5">10 Coins = 5 Followers/Subs</option>
+                    <option value="20|10">20 Coins = 10 Followers/Subs</option>
+                    <option value="50|25">50 Coins = 25 Followers/Subs</option>
+                    <option value="100|50">100 Coins = 50 Followers/Subs</option>
+                </select>
 
-/* ===== INIT ===== */
-function init(){
- if(name){
-  show("home");
- }
- bal.textContent = balance;
- inviteLink.value = location.href + "?ref=" + name;
-}
-window.onload = init;
+                <button class="btn" onclick="placeOrder()">Order Now</button>
+            </div>
+            <div style="margin-top:20px;">
+                <h3>📜 Your Order History</h3>
+                <div id="my-orders-container"><p style="text-align:center; color:#999;">Loading...</p></div>
+            </div>
+        </div>
 
-/* ===== REGISTER ===== */
-function register(){
- let n = username.value.trim();
+        <div id="tab-invite" class="screen hidden" style="padding-top: 0;">
+            <div class="card" style="text-align: center;">
+                <h3>Invite Friends</h3>
+                <p style="font-weight:bold; color:var(--primary); font-size:1.1rem;">Get 30 Coins per Invite!</p>
+                <p style="font-size:0.8rem; color:#666;">Share your link and earn big!</p>
+                <input type="text" id="referral-link" readonly style="text-align:center; background:#eee;">
+                <button class="btn" onclick="copyInvite()">Copy Link</button>
+                <button class="btn" style="background:#e74c3c; margin-top:10px;" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="bottom-nav" class="bottom-nav hidden">
+        <div class="nav-item active" id="nav-home" onclick="switchTab('home')"><i class="fas fa-home"></i> Tasks</div>
+        <div class="nav-item" id="nav-order" onclick="switchTab('order')"><i class="fas fa-shopping-cart"></i> Order</div>
+        <div class="nav-item" id="nav-invite" onclick="switchTab('invite')"><i class="fas fa-users"></i> Invite</div>
+    </div>
+    
+    <div id="toast">Message</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, set, get, update, child, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2QinoK69jefCd6jV2BxrNYX0LdangRbY",
+            authDomain: "cashtaskerpro.firebaseapp.com",
+            databaseURL: "https://cashtaskerpro-default-rtdb.firebaseio.com",
+            projectId: "cashtaskerpro",
+            storageBucket: "cashtaskerpro.firebasestorage.app",
+            messagingSenderId: "214798083032",
+            appId: "1:214798083032:web:a55242444183ebaca888ad"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        let currentUser = JSON.parse(localStorage.getItem('user_data')) || null;
+        let isLoginMode = true;
+
+        // --- INIT APP ---
+        window.onload = () => {
+            if (currentUser) {
+                initApp();
+                const lastTab = localStorage.getItem('last_tab') || 'home';
+                switchTab(lastTab);
+                
+                // Pending Task Check
+                const pending = localStorage.getItem('pending_task');
+                if(pending) {
+                    const task = JSON.parse(pending);
+                    const elapsed = Date.now() - task.time;
+                    if(elapsed < 15000) { 
+                        showToast("Verifying... Wait ⏳");
+                        setTimeout(() => finalizeTask(task), 5000);
+                    } else {
+                        finalizeTask(task);
+                    }
+                }
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+            }
+        };
+
+        // --- AUTH ---
+        window.toggleAuthMode = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('signup-fields').classList.toggle('hidden');
+            document.getElementById('auth-title').innerText = isLoginMode ? "Login 👋" : "Create Account 🚀";
+            document.getElementById('btn-auth').innerText = isLoginMode ? "Login" : "Register";
+        };
+
+        window.handleAuth = () => {
+            const insta = document.getElementById('inp-insta').value.trim();
+            const pass = document.getElementById('inp-password').value.trim();
+            if(!insta || !pass) { showToast("Enter details!"); return; }
+            const uid = insta.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            if(isLoginMode) {
+                get(child(ref(db), `users/${uid}`)).then(s => {
+                    if(s.exists() && s.val().password === pass) loginSuccess(s.val());
+                    else showToast("Invalid Credentials ❌");
+                }).catch(e => showToast("Network Error: " + e.message));
+            } else {
+                const name = document.getElementById('inp-name').value;
+                if(!name) { showToast("Enter Name!"); return; }
+                const userData = { uid, name, insta, password: pass, points: 50, coins: 0, lastBonus: 0, lastLuckyBonus: 0 };
+                get(child(ref(db), `users/${uid}`)).then(s => {
+                    if(s.exists()) showToast("User exists! Login instead.");
+                    else { set(ref(db, 'users/' + uid), userData); loginSuccess(userData); }
+                });
+            }
+        };
+
+        function loginSuccess(u) {
+            localStorage.setItem('user_data', JSON.stringify(u));
+            currentUser = u;
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('welcome-modal').classList.remove('hidden'); 
+            initApp(); switchTab('home');
+        }
+
+        window.logout = () => { localStorage.clear(); location.reload(); };
+        window.closeModal = () => { document.getElementById('welcome-modal').classList.add('hidden'); };
+
+        function initApp() {
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            document.getElementById('user-welcome').innerText = `Hello, ${currentUser.name}`;
+            document.getElementById('referral-link').value = `https://myapp.com/?ref=${currentUser.uid}`;
+
+            // Listen to User Balance & Completed Tasks
+            onValue(ref(db, `users/${currentUser.uid}`), (s) => {
+                if(s.exists()) {
+                    currentUser = s.val();
+                    localStorage.setItem('user_data', JSON.stringify(currentUser));
+                    document.getElementById('disp-points').innerText = currentUser.points;
+                    document.getElementById('disp-coins').innerText = currentUser.coins;
+                }
+            });
+
+            listenToOrders();
+            loadOfficialTasks();
+        }
+
+        // --- OFFICIAL TASKS (Admin) ---
+        function loadOfficialTasks() {
+            const container = document.getElementById('official-tasks-container');
+            onValue(ref(db, 'official_tasks'), (snapshot) => {
+                container.innerHTML = "";
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<p style="text-align:center;color:#999; padding:5px;">No official tasks.</p>';
+                    return;
+                }
+                
+                snapshot.forEach(child => {
+                    const t = child.val();
+                    const key = child.key; 
+                    
+                    // Check if already completed
+                    const isDone = (currentUser.completed_tasks && currentUser.completed_tasks[key]);
+                    const btnHtml = isDone 
+                        ? `<button class="action-btn-small" disabled style="background:#27ae60; border:1px solid #27ae60; opacity:0.7;">Done <i class="fas fa-check"></i></button>`
+                        : `<button class="action-btn-small" onclick="doOfficialTask('${key}', '${t.link}', ${t.points})">Go <i class="fas fa-arrow-right"></i></button>`;
+
+                    const html = `
+                    <div class="live-order-card card-official">
+                        <div class="order-left">
+                            <div class="platform-icon icon-official"><i class="fas fa-bullhorn"></i></div>
+                            <div class="order-info"><h4>${t.title}</h4><small>${t.desc || 'Tap to complete'}</small></div>
+                        </div>
+                        <div class="order-right">
+                            <div class="points-badge">+${t.points} Pts</div>
+                            ${btnHtml}
+                        </div>
+                    </div>`;
+                    container.innerHTML += html;
+                });
+            });
+        }
+
+        // --- ORDERS LOGIC ---
+        function listenToOrders() {
+            const liveContainer = document.getElementById('dynamic-tasks-container');
+            const historyContainer = document.getElementById('my-orders-container');
+
+            onValue(ref(db, 'orders'), (snapshot) => {
+                 let n = username.value.trim();
  if(!n) return alert("Enter name");
  localStorage.name = n;
  name = n;
